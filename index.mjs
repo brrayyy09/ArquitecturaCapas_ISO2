@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
 
 app.use("/images", FiltersRouter);
 
+//middleware de manejo de errores en una aplicación Node.js que utiliza el paquete Boom para gestionar errores
 app.use((error, req, res, next) => {
     if(error){
         let err = Boom.isBoom(error) ? error: Boom.internal(error);
