@@ -10,17 +10,22 @@ const PayloadValidation = Joi.object({
 })
 const applyFilters = async (payload) => {
     try {
+        // 1. Validar el payload
         await PayloadValidation.validateAsync(payload);
     } catch (error) {
+        // 2. Manejar errores de validación
         throw Boom.badData(error.message, { error });
-        next(err);
     }
+    // 3. Crear un nuevo documento de proceso
     const newProcess = new Process;
-    newProcess.filters = payload.filters;
+    newProcess.filters = payload.filters;/* Se asigna el valor de payload.filters al campo filters del nuevo documento newProcess. Esto indica que los datos validados se están asignando al documento que se guardará en la base de datos. */
 
+    // 4. Guardar el nuevo proceso en la base de datos
     await newProcess.save();
 
+    // 5. Devolver el nuevo proceso
     return newProcess;
 };
+
 
 export default applyFilters;
