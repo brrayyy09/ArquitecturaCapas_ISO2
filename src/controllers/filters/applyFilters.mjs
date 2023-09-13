@@ -19,6 +19,7 @@ const applyFilters = async (payload) => {
     // 3. Crear un nuevo documento de proceso
     const newProcess = new Process;
     newProcess.filters = payload.filters;/* Se asigna el valor de payload.filters al campo filters del nuevo documento newProcess. Esto indica que los datos validados se están asignando al documento que se guardará en la base de datos. */
+    newProcess.guid = payload.guid;
 
     // 4. Guardar el nuevo proceso en la base de datos
     await newProcess.save();

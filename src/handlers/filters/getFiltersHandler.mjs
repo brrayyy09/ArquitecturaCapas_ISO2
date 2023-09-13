@@ -2,17 +2,14 @@ import Boom from "@hapi/boom";
 import HttpStatusCodes from "http-status-codes";
 import Process from "../../models/Process.mjs";
 
-const getFiltersHandler = async (req, res, next) => {
+const getFiltersHandler = async (filter, req, res, next) => {
     try {
-        const {id} = req.params;
-        const newProcess = Process();
-
-        const document = await newProcess.findOne({ _id: id }).exec();
-        return res.send(document);
+        const documents = await Process.find({ filters: { $in: [filter] } }).exec();
+        return res.send(documents).json();
 
     } catch (error) {
         const err = Boom.isBoom(error) ? error : Boom.internal(error);
-        next(err);
+        return next(err);
     }
 };
 export default getFiltersHandler;
