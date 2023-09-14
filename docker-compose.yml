@@ -1,0 +1,15 @@
+version: "3.7"
+services: 
+  backend:
+    container_name: backend
+    build:
+      context: . #esto es como la ruta, el punto significa que es en mismo lugar de este archivo
+      dockerfile: Dockerfile
+    ports: 
+      - 3001:5001
+    networks:
+      - processor-net #nombre de la red
+
+networks:
+  processor-net:
+    driver: bridge
