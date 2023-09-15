@@ -1,15 +1,25 @@
-import Boom from "@hapi/boom";
-import HttpStatusCodes from "http-status-codes";
-import Process from "../../models/Process.mjs";
+import mongoose from 'mongoose';
+import Process from '../../models/Process.mjs' // Ajusta la ubicación de tu modelo
+import { StatusCodes } from 'http-status-codes';
 
-const getFiltersHandler = async (filter, req, res, next) => {
+// Define una ruta para obtener una imagen por su id
+const getFiltersHandler = ( async (req, res, next) => {
     try {
-        const documents = await Process.find({ filters: { $in: [filter] } }).exec();
-        return res.send(documents).json();
+        const {id} = req.params;
+        console.log(id);
+        const process = await Process.findById(id);
 
+        if (!process || !process.files || process.files.length === 0) {
+            return res.sendStatus(400).json({ message: 'Imagen no encontrada' });
+        }
+
+        // Devuelve los datos binarios como respuesta
+        res.send(`imagen encontrada`); // Supongo que solo hay una imagen en "archivos"
     } catch (error) {
-        const err = Boom.isBoom(error) ? error : Boom.internal(error);
-        return next(err);
+        console.error(error);
+        res.sendStatus(500).json({ message: 'Error al obtener la imagen' });
     }
-};
+    next();
+});
+
 export default getFiltersHandler;
