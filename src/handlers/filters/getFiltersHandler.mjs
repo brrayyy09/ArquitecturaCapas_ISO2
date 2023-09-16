@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
-import Process from '../../models/Process.mjs' // Ajusta la ubicación de tu modelo
+import Process from '../../models/Process.mjs';
 import { StatusCodes } from 'http-status-codes';
 
-// Define una ruta para obtener una imagen por su id
 const getFiltersHandler = (async (req, res, next) => {
     try {
         const { id } = req.params;
