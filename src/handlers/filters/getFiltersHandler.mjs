@@ -3,9 +3,9 @@ import Process from '../../models/Process.mjs' // Ajusta la ubicación de tu mod
 import { StatusCodes } from 'http-status-codes';
 
 // Define una ruta para obtener una imagen por su id
-const getFiltersHandler = ( async (req, res, next) => {
+const getFiltersHandler = (async (req, res, next) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         console.log(id);
         const process = await Process.findById(id);
 
@@ -13,8 +13,9 @@ const getFiltersHandler = ( async (req, res, next) => {
             return res.sendStatus(400).json({ message: 'Imagen no encontrada' });
         }
 
-        // Devuelve los datos binarios como respuesta
-        res.send(`imagen encontrada`); // Supongo que solo hay una imagen en "archivos"
+        const filters = process.filters; // Accede al campo createdAt del objeto process
+        return res.send(`Imagen encontrada, Los filtros aplicados para esta imagen son: ${filters}`);
+
     } catch (error) {
         console.error(error);
         res.sendStatus(500).json({ message: 'Error al obtener la imagen' });

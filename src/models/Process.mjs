@@ -6,16 +6,21 @@ import { TYPE_OF_FILTERS } from "../commons/constans.mjs";
 
 const ProcessSchema = new Schema(
     {
-        files: Buffer,
-        // filters: {
-        //     type: [
-        //         {
-        //             type: String,
-        //             enum: TYPE_OF_FILTERS, /* Las opciones válidas para este campo están limitadas por enum: TYPE_OF_FILTERS, lo que significa que solo se permiten valores que estén en el array TYPE_OF_FILTERS*/
-        //             required: true,//significa que es obligatorio
-        //         },
-        //     ],
-        // },
+        files: {
+            type: Buffer,
+            required: true
+
+        },
+        filters: {
+            type: [
+                {
+                    type: String,
+                    enum: TYPE_OF_FILTERS,
+                    required: true
+                }
+
+            ],
+        },
     },
     {
         timestamps: true, /*al configurar timestamps: true, se agregarán automáticamente campos de fecha de creación (createdAt) y fecha de actualización (updatedAt) a cada documento.*/
