@@ -13,7 +13,7 @@ const getFiltersHandler = (async (req, res, next) => {
             return res.sendStatus(400).json({ message: 'Imagen no encontrada' });
         }
 
-        const filters = process.filters; // Accede al campo createdAt del objeto process
+        const filters = process.filters; // Accede al campo filters del objeto process
         return res.send(`Imagen encontrada, Los filtros aplicados para esta imagen son: ${filters}`);
 
     } catch (error) {
