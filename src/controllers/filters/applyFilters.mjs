@@ -15,20 +15,20 @@ const applyFilters = async (files, filters, filtersBD) => {
         // 2. Manejar errores de validación
         throw Boom.badData(error.message, { error });
     }
-    // El modelo Process tiene un campo "files" que es una matriz para almacenar los datos binarios de los archivos
+    // El modelo Process tiene un campo "files" que es una matriz para almacenar los datos binarios de las imagenes
     const filesData = [];
 
     for (const file of files) {
-        // Obtener los datos binarios del archivo
+        // Obtener los datos binarios de la imagen
         const fileData = file.buffer;
 
-        // Almacenar los datos binarios en el campo "archivos" del documento
+        // Almacenar los datos binarios en el campo "files" del documento
         filesData.push(fileData);
     }
 
     // 3. Crear un nuevo documento de proceso
     const newProcess = new Process;
-    // Asignar las rutas al campo "archivos"
+    // Asignar las rutas al campo "files"
     newProcess.files = filesData;
     newProcess.filters = filtersBD;
 
