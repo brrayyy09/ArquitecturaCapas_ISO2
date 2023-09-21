@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import Boom from '@hapi/boom';
 import { startConnection } from './src/mongo/index.mjs';
 import FiltersRouter from './src/handlers/filters/index.mjs';
-import { PORT } from './src/commons/env.mjs';
+import PORT from './src/commons/env.mjs';
 
 const app = Express();
 
