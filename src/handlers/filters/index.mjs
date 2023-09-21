@@ -1,13 +1,12 @@
-import { Router } from "express";
+import { Router } from 'express';
+
+import applyFiltersHandler from './applyFiltersHandler.mjs';
+import getFiltersHandler from './getFiltersHandler.mjs';
 
 const router = Router();
 
-import applyFiltersHandler from "./applyFiltersHandler.mjs";
-import getFiltersHandler from "./getFiltersHandler.mjs";
+router.get('/:id', getFiltersHandler);
 
-router.get("/:id", getFiltersHandler);
-
-router.post("/", applyFiltersHandler);
-
+router.post('/', applyFiltersHandler);
 
 export default router;
