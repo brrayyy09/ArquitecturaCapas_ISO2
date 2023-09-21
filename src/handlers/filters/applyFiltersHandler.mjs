@@ -22,6 +22,7 @@ const applyFiltersHandler = async (req, res, next) => {
       const { body } = req;
       const bodyParsed = JSON.parse(`{"filters": ${body.filters}}`);
       const bodyParsed2 = JSON.parse(body.filters);
+      // eslint-disable-next-line
       console.log(`hola gente ${JSON.stringify(bodyParsed)}`);
       const response = await applyFilters(archivos, bodyParsed, bodyParsed2);
       return res.status(HttpStatusCodes.OK).json(response);

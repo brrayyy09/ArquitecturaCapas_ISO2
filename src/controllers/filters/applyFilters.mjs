@@ -17,6 +17,7 @@ const applyFilters = async (files, filters, filtersBD) => {
   // Process tiene un campo "files", una matriz para almacenar los datos binarios de las imagenes
   const filesData = [];
 
+  // eslint-disable-next-line
   for (const file of files) {
     // Obtener los datos binarios de la imagen
     const fileData = file.buffer;
