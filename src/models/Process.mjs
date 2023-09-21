@@ -19,12 +19,13 @@ const ProcessSchema = new Schema(
           enum: TYPE_OF_FILTERS,
           required: true,
         },
-
       ],
     },
   },
   {
-    timestamps: true, /* al configurar timestamps: true, se agregarán automáticamente campos de fecha de creación (createdAt) y fecha de actualización (updatedAt) a cada documento. */
+    timestamps: true,
+    // al configurar timestamps: true, se agregarán automáticamente campos de fecha de
+    // creación (createdAt) y fecha de actualización (updatedAt) a cada documento.
   },
 );
 
