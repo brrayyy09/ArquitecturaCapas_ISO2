@@ -4,7 +4,7 @@ import Process from '../../models/Process.mjs';//
 
 const PayloadValidation = Joi.object({
   filters: Joi.array().items(Joi.string().valid('negative', 'greyscale', 'blur')).min(1),
-  files: Joi.array()
+  files: Joi.array(),
 });
 
 const applyFilters = async (files, filters) => {
