@@ -14,8 +14,9 @@ class ProcessService {
     files: Joi.array(),
   });
 
-  constructor({ processRepository }) {
+  constructor({ processRepository, minioService }) {
     this.processRepository = processRepository;
+    this.minioService = minioService;
   }
 
   async applyFilters(payload) {
