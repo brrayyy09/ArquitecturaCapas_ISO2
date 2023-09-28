@@ -7,11 +7,6 @@ import { TYPE_OF_FILTERS } from '../commons/constans.mjs';
 
 const ProcessSchema = new Schema(
   {
-    files: {
-      type: Buffer,
-      required: true,
-
-    },
     filters: {
       type: [
         {

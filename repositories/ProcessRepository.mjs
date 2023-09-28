@@ -5,7 +5,6 @@ class ProcessRepository {
   async save(process) {
     const newProcess = new ProcessModel();
     newProcess.filters = process.filters;
-    newProcess.files = process.files;
     await newProcess.save();
     return newProcess;
   }

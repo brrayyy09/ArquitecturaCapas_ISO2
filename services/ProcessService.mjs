@@ -5,14 +5,16 @@ import { BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER } from '../src/commons/c
 class ProcessService {
   processRepository = null;
 
+  minioService = null;
+
   payloadValidation = Joi.object({
     filters: Joi.array().items(Joi.string().valid(
       BLUR_FILTER,
       GREYSCALE_FILTER,
       NEGATIVE_FILTER,
     )).min(1),
-    files: Joi.array(),
-  });
+    files: Joi.array().required(),
+  }).required();
 
   constructor({ processRepository, minioService }) {
     this.processRepository = processRepository;
@@ -28,7 +30,14 @@ class ProcessService {
       throw Boom.badData(error.message, { error });
     }
 
-    const process = await this.processRepository.save(payload);
+    const { files, filters } = payload;
+
+    const process = await this.processRepository.save({ filters });
+
+    const imagesPromises = files.map((image) => this.minioService.saveImage(image));
+
+    const imagesNames = await Promise.all(imagesPromises);
+    console.log(imagesNames);
     return process;
   }
 }
