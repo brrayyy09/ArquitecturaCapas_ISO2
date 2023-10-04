@@ -34,10 +34,10 @@ class ProcessService {
 
     const process = await this.processRepository.save({ filters });
 
-    const imagesPromises = files.map((image) => this.minioService.saveImage(image));
+    // const imagesPromises = files.map((image) => this.minioService.saveImage(image));
 
-    const imagesNames = await Promise.all(imagesPromises);
-    console.log(imagesNames);
+    // const imagesNames = await Promise.all(imagesPromises);
+    // console.log(imagesNames);
     return process;
   }
 }
