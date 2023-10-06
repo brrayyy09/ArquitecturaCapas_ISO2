@@ -1,4 +1,4 @@
-import ProcessModel from '../src/models/Process.mjs';
+import ProcessModel from '../models/Process.mjs';
 
 class ProcessRepository {
   // eslint-disable-next-line class-methods-use-this
