@@ -1,7 +1,7 @@
 import {
   describe, test, expect, jest,
 } from '@jest/globals';
-import ProcessRepository from '../../src/repositories/ProcessRepository.mjs';
+import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
 

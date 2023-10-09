@@ -1,6 +1,6 @@
 import Joi from 'joi'; // validar un esquema de tipo json
 import Boom from '@hapi/boom';
-import { BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER } from '../src/commons/constans.mjs';
+import { BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER } from '../commons/constans.mjs';
 
 class ProcessService {
   processRepository = null;
@@ -34,11 +34,20 @@ class ProcessService {
 
     const process = await this.processRepository.save({ filters });
 
-    // const imagesPromises = files.map((image) => this.minioService.saveImage(image));
+    const imagesPromises = files.map((image) => this.minioService.saveImage(image));
 
-    // const imagesNames = await Promise.all(imagesPromises);
-    // console.log(imagesNames);
+    const imagesNames = await Promise.all(imagesPromises);
+    console.log(imagesNames);
     return process;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getFilters(id) {
+    try {
+      console.log('Estoy llegando a getFilters', id);
+    } catch (error) {
+      throw Boom.badData(error.message, { error });
+    }
   }
 }
 

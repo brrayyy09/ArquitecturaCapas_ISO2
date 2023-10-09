@@ -1,10 +1,10 @@
 import Express from 'express';
 import bodyParser from 'body-parser';
 import Boom from '@hapi/boom';
+import buildContainer from './src/container/buildContainer.mjs';
 import { startConnection } from './src/mongo/index.mjs';
 import FiltersRouter from './src/handlers/filters/index.mjs';
 import PORT from './src/commons/env.mjs';
-import buildContainer from './container/buildContainer.mjs';
 
 const app = Express();
 
