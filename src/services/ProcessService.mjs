@@ -44,7 +44,7 @@ class ProcessService {
   // eslint-disable-next-line class-methods-use-this
   getFilters(id) {
     try {
-      console.log('Estoy llegando a getFilters', id);
+      console.log(id);
     } catch (error) {
       throw Boom.badData(error.message, { error });
     }
