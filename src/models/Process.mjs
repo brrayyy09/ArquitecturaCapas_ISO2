@@ -24,6 +24,10 @@ const ProcessSchema = new Schema(
   },
 );
 
+ProcessSchema.statics.findById = function (id) {
+  return this.findOne({ _id: id });
+};
+
 const ProcessModel = model('process', ProcessSchema);
 
 export default ProcessModel;

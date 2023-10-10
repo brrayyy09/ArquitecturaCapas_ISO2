@@ -42,12 +42,9 @@ class ProcessService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getFilters(id) {
-    try {
-      console.log(id);
-    } catch (error) {
-      throw Boom.badData(error.message, { error });
-    }
+  async getFilters(id) {
+    const process = await this.processRepository.findId(id);
+    return process;
   }
 }
 
