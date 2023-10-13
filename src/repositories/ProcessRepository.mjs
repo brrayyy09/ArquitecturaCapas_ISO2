@@ -4,8 +4,11 @@ import ProcessModel from '../models/Process.mjs';
 class ProcessRepository {
   // eslint-disable-next-line class-methods-use-this
   async save(process) {
-    const newProcess = new ProcessModel();
-    newProcess.filters = process.filters;
+    const newProcess = new ProcessModel({
+      filters: process.filters,
+      images: process.images, // Si necesitas agregar imágenes
+    });
+
     await newProcess.save();
     return newProcess;
   }

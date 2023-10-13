@@ -5,6 +5,22 @@ import { Schema, model } from 'mongoose'; // Schema: El objeto Schema se utiliza
 
 import { TYPE_OF_FILTERS } from '../commons/constans.mjs';
 
+const filterSchema = new Schema(
+  {
+    name: String,
+    status: String,
+    imageUrl: String,
+    message: String, // Opcional, por si existe mensaje error
+  },
+);
+
+const imageSchema = new Schema(
+  {
+    imageUrl: String,
+    filters: [filterSchema],
+  },
+);
+
 const ProcessSchema = new Schema(
   {
     filters: {
@@ -16,12 +32,9 @@ const ProcessSchema = new Schema(
         },
       ],
     },
+    images: [imageSchema],
   },
-  {
-    timestamps: true,
-    // al configurar timestamps: true, se agregarán automáticamente campos de fecha de
-    // creación (createdAt) y fecha de actualización (updatedAt) a cada documento.
-  },
+  { timestamps: true },
 );
 
 ProcessSchema.statics.findById = function (id) {

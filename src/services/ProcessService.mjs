@@ -34,6 +34,8 @@ class ProcessService {
 
     const process = await this.processRepository.save({ filters });
 
+    if (!process) throw Boom.notFound;
+
     const imagesPromises = files.map((image) => this.minioService.saveImage(image));
 
     const imagesNames = await Promise.all(imagesPromises);
@@ -44,6 +46,7 @@ class ProcessService {
   // eslint-disable-next-line class-methods-use-this
   async getFilters(id) {
     const process = await this.processRepository.findId(id);
+    if (!process) throw Boom.notFound;
     return process;
   }
 }

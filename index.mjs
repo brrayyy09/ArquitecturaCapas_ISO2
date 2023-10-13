@@ -1,39 +1,11 @@
-import Express from 'express';
-import bodyParser from 'body-parser';
-import Boom from '@hapi/boom';
-import buildContainer from './src/container/buildContainer.mjs';
 import { startConnection } from './src/mongo/index.mjs';
-import FiltersRouter from './src/handlers/filters/index.mjs';
 import PORT from './src/commons/env.mjs';
-
-const app = Express();
-
-app.use(bodyParser.json());
-app.use(buildContainer);
-
-app.get('/', (req, res) => {
-  res.send('ok');
-});
-
-app.use('/images', FiltersRouter);
-
-// middleware de manejo de errores en una aplicación Node.js
-// que utiliza el paquete Boom para gestionar errores
-app.use((error, req, res, next) => {
-  if (error) {
-    const err = Boom.isBoom(error) ? error : Boom.internal(error);
-    const { statusCode } = err.output;
-    const { payload } = err.output;
-    payload.stack = error.stack;
-    return res.status(statusCode).json(payload);
-  }
-  return next();
-});
+import app from './src/app.mjs';
 
 const startServer = async () => {
   await startConnection();
   app.listen(PORT, () => {
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-console
     console.log(`http://localhost:${PORT}`);
   });
 };
