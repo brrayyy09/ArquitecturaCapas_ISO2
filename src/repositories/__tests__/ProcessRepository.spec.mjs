@@ -19,12 +19,12 @@ describe('ProcessRepository', () => {
   describe('save', () => {
     test('Guardar proceso de las imagenes', async () => {
       const process = {
-        filters: ['grayscale', 'blur'],
-        images: ['image1.jpg', 'image2.jpg'],
+        filters: ['grayscale', 'blur', 'negative'],
+        images: ['paisaje.jpg', 'luna.jpg', 'sol.jpg'],
       };
 
       const newProcess = new ProcessModel({
-        id: '1234',
+        id: '9876',
         filters: process.filters,
         images: process.images,
       });
