@@ -6,8 +6,8 @@ import {
   afterEach,
   test,
 } from '@jest/globals';
-import app from '../../app.mjs';
-import { closeConnection, startConnection } from '../../mongo/index.mjs';
+import app from '../app.mjs';
+import { closeConnection, startConnection } from '../mongo/index.mjs';
 
 beforeEach(async () => {
   await startConnection();
@@ -29,7 +29,7 @@ describe('Test app Express server', () => {
       .set('Content-Type', 'multipart/form-data')
       .field('filters[]', 'grayscale')
       .field('filters[]', 'blur')
-      .attach('images[]', './assets/imagen.jpg');
+      .attach('images[]', './assets/imagen1.png');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('filters');

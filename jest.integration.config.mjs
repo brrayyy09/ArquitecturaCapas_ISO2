@@ -3,8 +3,15 @@ export default {
     'mjs',
     'js',
   ],
-  testMatch: ['**/?(*.)integration.+(spec|test).(m)js'],
+  testMatch: [
+    '**/__tests__/**/*.mjs',
+  ],
+  collectCoverageFrom: [
+    '**/app.mjs',
+    '**/handlers/**/*.mjs',
+  ],
   verbose: true,
+  collectCoverage: true,
   coverageThreshold: {
     global: {
       branches: 90,

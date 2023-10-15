@@ -28,11 +28,11 @@ describe('ProcessRepository', () => {
         filters: process.filters,
         images: process.images,
       });
-      jest.spyOn(newProcess, 'save').mockResolvedValueOnce(newProcess);
+      jest.spyOn(ProcessModel.prototype, 'save').mockResolvedValueOnce(newProcess);
 
       const result = await processRepository.save(process);
 
-      expect(newProcess.save).toHaveBeenCalledTimes(1);
+      expect(ProcessModel.prototype.save).toHaveBeenCalledTimes(1);
       expect(result).toEqual(newProcess);
     });
   });
