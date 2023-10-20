@@ -24,8 +24,8 @@ services:
     volumes:
       - minio-volume:/data
     environment:
-      - MINIO_ROOT_USER=miniouser
-      - MINIO_ROOT_PASSWORD=miniopassword
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=password
     command: server --console-address ":9001" /data # Especifica el puerto estático para la consola
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]

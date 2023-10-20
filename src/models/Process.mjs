@@ -1,16 +1,19 @@
-import { Schema, model } from 'mongoose'; // Schema: El objeto Schema se utiliza para definir la estructura
-// de los documentos en una colección MongoDB.
-// eslint-disable-next-line
-//Los modelos representan una colección en la base de datos y proporcionan métodos para interactuar con ella.
-
+import { Schema, model } from 'mongoose';
 import { TYPE_OF_FILTERS } from '../commons/constans.mjs';
+
+const STATUS_TYPES = ['in-progress', 'Ready', 'Error'];
 
 const filterSchema = new Schema(
   {
     name: String,
-    status: String,
+    status: {
+      type: String,
+      enum: STATUS_TYPES,
+      default: 'in-progress',
+      required: true,
+    },
     imageUrl: String,
-    message: String, // Opcional, por si existe mensaje error
+    message: String,
   },
 );
 
