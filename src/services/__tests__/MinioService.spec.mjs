@@ -39,7 +39,8 @@ describe('MinioService test', () => {
     // Verify that S3Client's send method was called with the expected arguments
     // expect(minioService.conn.send).toHaveBeenCalledWith({
     //   Bucket: 'images',
-    //   Key: expect.stringMatching(/[a-f0-9-]+\.png/), // Verifica el formato del nombre del archivo
+    //   Key: expect.stringMatching(/[a-f0-9-]+\.png/),
+    // Verifica el formato del nombre del archivo
     //   Body: expect.any(Buffer),
     // });
   });

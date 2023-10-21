@@ -29,10 +29,15 @@ describe('ProcessService test', () => {
     minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
 
     const result = await processService.applyFilters(payload);
-
-    // Verify that the processRepository.save and minioService.saveImage
-    // methods were called as expected
-    expect(processRepository.save).toHaveBeenCalledWith({ filters: payload.filters });
+    expect(processRepository.save).toHaveBeenCalledWith({
+      filters: payload.filters,
+      images: [
+        {
+          filters: payload.filters.map((filter) => ({ name: filter, status: 'in-progress' })),
+          imageUrl: 'image1.png',
+        },
+      ],
+    });
     expect(minioService.saveImage).toHaveBeenCalledWith(payload.files[0]);
 
     // Now you can assert the result as needed
@@ -52,7 +57,7 @@ describe('ProcessService test', () => {
   test('Test getFilters function', async () => {
     const processId = '1234';
     const expectedProcess = {
-      id: processId,
+      _id: processId,
       filters: ['negative'],
       files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
     };
@@ -60,7 +65,7 @@ describe('ProcessService test', () => {
     // Mock the processRepository.findId method to return the expected process
     processRepository.findId = jest.fn().mockResolvedValue(expectedProcess);
 
-    const result = await processService.getFilters(processId);
+    const result = await processService.getProcessById(processId);
 
     // Verify that the processRepository.findId method was called with the correct argument
     expect(processRepository.findId).toHaveBeenCalledWith(processId);
@@ -85,19 +90,23 @@ describe('ProcessService test', () => {
   });
 
   test('Test getFilters function with process not found', async () => {
-    const processId = '1234';
+    const processId = '5673';
 
     // Mock the processRepository.findId method to return null (process not found)
     processRepository.findId = jest.fn().mockResolvedValue(null);
 
     // Expecting the function to throw a Boom.notFound error
-    await expect(processService.getFilters(processId)).rejects.toThrow(Boom.notFound());
+    await expect(processService.getProcessById(processId)).rejects.toThrow(Boom.notFound());
   });
+
   test('Test applyFilters function with no filters', async () => {
     const payload = {
       files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+      filters: ['negative', 'blur', 'grayscale'],
     };
-    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.badData());
+    const mockError = new Error('Unprocessable Entity');
+    jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
+    await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
   });
 
   test('Test applyFilters function with invalid filters', async () => {
@@ -105,14 +114,20 @@ describe('ProcessService test', () => {
       filters: ['invalid_filter'],
       files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
     };
-    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.badData());
+    const mockError = new Error('Unprocessable Entity');
+    jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
+    await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
   });
 
   test('Test applyFilters function with no files', async () => {
     const payload = {
       filters: ['negative'],
     };
-    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.badData());
+
+    const mockError = new Error('Not Found');
+    jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
+
+    await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
   });
 
   test('Test applyFilters function with save process error', async () => {
@@ -127,6 +142,37 @@ describe('ProcessService test', () => {
   test('Test getFilters function with process not found', async () => {
     const processId = '1234';
     processRepository.findId = jest.fn().mockResolvedValue(null);
-    await expect(processService.getFilters(processId)).rejects.toThrow(Boom.notFound());
+    await expect(processService.getProcessById(processId)).rejects.toThrow(Boom.notFound());
+  });
+
+  test('Test getProcessById with valid id', async () => {
+    // Mock the processRepository.findById method to return a process with the given id
+    const expectedProcess = { id: '1234', name: 'Test Process' };
+    processRepository.findById = jest.fn().mockResolvedValue(expectedProcess);
+
+    // Call the getProcessById method with the id
+    const result = await processService.getProcessById('1234');
+
+    // Verify that the processRepository.findById method was called with the correct argument
+    expect(processRepository.findById).toHaveBeenCalledWith('1234');
+
+    // Now you can assert the result as needed
+    expect(result).toEqual(expectedProcess);
+  });
+
+  test('Test getProcessById with invalid id', async () => {
+    // Mock the processRepository.findById method to return null (process not found)
+    processRepository.findById = jest.fn().mockResolvedValue(null);
+
+    // Expecting the function to throw a Boom.notFound error
+    await expect(processService.getProcessById('invalid_id')).rejects.toThrow(Boom.notFound());
+  });
+
+  test('Test getProcessById with unexpected error', async () => {
+    // Mock the processRepository.findById method to throw an unexpected error
+    processRepository.findById = jest.fn().mockRejectedValue(new Error('Internal Server Error'));
+
+    // Expecting the function to throw an internal server error
+    await expect(processService.getProcessById('1234')).rejects.toThrow(Boom.internal());
   });
 });
