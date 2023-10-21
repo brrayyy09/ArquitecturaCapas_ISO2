@@ -54,7 +54,7 @@ class ProcessService {
     // Aquí, 'process' debería ser el objeto que se guarda en tu base de datos
     const process = await this.processRepository.save({ filters, images });
 
-    if (!process) throw Boom.notFound('Process Not Found');
+    if (!process) throw Boom.notFound('Not Found');
 
     return process; // Esto debería devolver el objeto 'process' con las 'images' incluidas
   }
@@ -63,7 +63,7 @@ class ProcessService {
     try {
       const process = await this.processRepository.findById(id);
       if (!process) {
-        throw Boom.notFound('Process Not Found');
+        throw Boom.notFound('Not Found');
       }
       return process;
     } catch (error) {
