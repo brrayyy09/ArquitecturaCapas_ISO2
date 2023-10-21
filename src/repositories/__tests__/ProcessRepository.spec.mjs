@@ -16,50 +16,46 @@ describe('ProcessRepository', () => {
     jest.restoreAllMocks();
   });
 
-  describe('save', () => {
-    test('Guardar proceso de las imagenes', async () => {
-      const process = {
-        filters: ['grayscale', 'blur', 'negative'],
-        images: ['paisaje.jpg', 'luna.jpg', 'sol.jpg'],
-      };
+  test('Guardar proceso de las imagenes', async () => {
+    const process = {
+      filters: ['grayscale', 'blur', 'negative'],
+      images: ['paisaje.jpg', 'luna.jpg', 'sol.jpg'],
+    };
 
-      const newProcess = new ProcessModel({
-        id: '9876',
-        filters: process.filters,
-        images: process.images,
-      });
-      jest.spyOn(ProcessModel.prototype, 'save').mockResolvedValueOnce(newProcess);
+    // Simula un objeto de proceso como si fuera devuelto por la base de datos
+    const newProcess = {
+      _id: 'some-mocked-id', // usa _id aquí si necesitas un campo de identificación
+      filters: process.filters,
+      images: process.images,
+    };
 
-      const result = await processRepository.save(process);
+    jest.spyOn(ProcessModel.prototype, 'save').mockResolvedValueOnce(newProcess);
 
-      expect(ProcessModel.prototype.save).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(newProcess);
-    });
+    const result = await processRepository.save(process);
+
+    expect(ProcessModel.prototype.save).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(newProcess); // ahora esto debería funcionar
   });
 
-  describe('findId', () => {
+  describe('findById', () => {
     test('Error si no se encuentra la imagen', async () => {
       const id = '98';
       jest.spyOn(ProcessModel, 'findById').mockResolvedValueOnce(null);
 
-      const result = await processRepository.findId(id);
+      await expect(processRepository.findById(id)).rejects.toThrow('Imagen no encontrada');
 
       expect(ProcessModel.findById).toHaveBeenCalledWith(id);
-      expect(result).toEqual({ message: 'Imagen no encontrada' });
     });
 
-    test('Retornar los filtros si es contrada', async () => {
+    test('Retornar el proceso si es encontrado', async () => {
       const id = '50';
-      const filters = ['negative', 'grayscale', 'blur'];
-      const process = new ProcessModel({ filters });
+      const process = new ProcessModel({ filters: ['negative', 'grayscale', 'blur'] });
       jest.spyOn(ProcessModel, 'findById').mockResolvedValueOnce(process);
 
-      const result = await processRepository.findId(id);
+      const result = await processRepository.findById(id);
 
       expect(ProcessModel.findById).toHaveBeenCalledWith(id);
-      expect(result).toEqual({
-        message: `Imagen encontrada, Los filtros aplicados para la imagen con id ${id} son: ${filters}`,
-      });
+      expect(result).toEqual(process);
     });
 
     test('Error si el ID no es encontrado', async () => {
@@ -67,7 +63,7 @@ describe('ProcessRepository', () => {
       const error = new Error('Error encontrando la imagen');
       jest.spyOn(ProcessModel, 'findById').mockRejectedValueOnce(error);
 
-      await expect(processRepository.findId(id)).rejects.toThrowError(error);
+      await expect(processRepository.findById(id)).rejects.toThrowError(error);
     });
   });
 });
