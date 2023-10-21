@@ -1,4 +1,4 @@
-import Joi from 'joi'; // validar un esquema de tipo json
+import Joi from 'joi';
 import Boom from '@hapi/boom';
 import { BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER } from '../commons/constans.mjs';
 
@@ -32,22 +32,45 @@ class ProcessService {
 
     const { files, filters } = payload;
 
-    const process = await this.processRepository.save({ filters });
+    // Procesa cada archivo y aplica los filtros
+    const imagesPromises = files.map(async (file) => {
+      // Lógica para guardar la imagen y aplicar filtros
+      // Esto es solo un esquema y deberá ser implementado según tu lógica de negocio
 
-    if (!process) throw Boom.notFound;
+      const imageUrl = await this.minioService.saveImage(file);
 
-    const imagesPromises = files.map((image) => this.minioService.saveImage(image));
+      return {
+        imageUrl, // la URL de la imagen
+        filters: filters.map((filter) => ({
+          name: filter,
+          status: 'in-progress', // actualiza esto según tu lógica
+          // _id se generará automáticamente si estás usando Mongoose
+        })),
+        // _id se generará automáticamente si estás usando Mongoose
+      };
+    });
+    const images = await Promise.all(imagesPromises);
 
-    const imagesNames = await Promise.all(imagesPromises);
-    console.log(imagesNames);
-    return process;
+    // Aquí, 'process' debería ser el objeto que se guarda en tu base de datos
+    const process = await this.processRepository.save({ filters, images });
+
+    if (!process) throw Boom.notFound('Process Not Found');
+
+    return process; // Esto debería devolver el objeto 'process' con las 'images' incluidas
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async getFilters(id) {
-    const process = await this.processRepository.findId(id);
-    if (!process) throw Boom.notFound;
-    return process;
+  async getProcessById(id) {
+    try {
+      const process = await this.processRepository.findById(id);
+      if (!process) {
+        throw Boom.notFound('Process Not Found');
+      }
+      return process;
+    } catch (error) {
+      // Aquí, puedes manejar errores específicos, como errores de conexión a la base de datos, etc.
+      // Por ejemplo, podrías lanzar un Boom.internal para errores desconocidos.
+      throw Boom.internal(error.message, { error });
+    }
   }
 }
 

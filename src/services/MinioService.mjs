@@ -26,6 +26,7 @@ class MinioService {
       if (!image) {
         throw Boom.badRequest('Image is required');
       }
+      // eslint-disable-next-line no-console
       console.log(image);
       if (!image.originalname) {
         throw Boom.badRequest('Image originalname is required');

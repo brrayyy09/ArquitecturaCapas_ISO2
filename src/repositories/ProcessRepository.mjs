@@ -14,14 +14,13 @@ class ProcessRepository {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async findId(id) {
+  async findById(id) {
     try {
       const process = await ProcessModel.findById(id);
       if (!process) {
-        return { message: 'Imagen no encontrada' };
+        throw Boom.notFound('Imagen no encontrada'); // Lanza un error si no se encuentra
       }
-      const { filters } = process; // Accede al campo filters del objeto process
-      return { message: `Imagen encontrada, Los filtros aplicados para la imagen con id ${id} son: ${filters}` };
+      return process; // Devuelve el objeto completo
     } catch (error) {
       throw Boom.badData(error.message, { error });
     }

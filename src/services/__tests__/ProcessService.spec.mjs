@@ -1,6 +1,7 @@
 import {
   describe, test, expect, jest,
 } from '@jest/globals';
+import Boom from '@hapi/boom';
 import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
@@ -66,5 +67,66 @@ describe('ProcessService test', () => {
 
     // Now you can assert the result as needed
     expect(result).toEqual(expectedProcess);
+  });
+
+  // ... (tu código existente de pruebas) ...
+
+  test('Test applyFilters function with unexpected error when saving process', async () => {
+    const payload = {
+      filters: ['negative'],
+      files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+    };
+
+    // Mock the processRepository.save method to throw an unexpected error
+    processRepository.save = jest.fn().mockRejectedValue(new Error('Unexpected error'));
+
+    // Expecting the function to throw an error
+    await expect(processService.applyFilters(payload)).rejects.toThrow();
+  });
+
+  test('Test getFilters function with process not found', async () => {
+    const processId = '1234';
+
+    // Mock the processRepository.findId method to return null (process not found)
+    processRepository.findId = jest.fn().mockResolvedValue(null);
+
+    // Expecting the function to throw a Boom.notFound error
+    await expect(processService.getFilters(processId)).rejects.toThrow(Boom.notFound());
+  });
+  test('Test applyFilters function with no filters', async () => {
+    const payload = {
+      files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+    };
+    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.badData());
+  });
+
+  test('Test applyFilters function with invalid filters', async () => {
+    const payload = {
+      filters: ['invalid_filter'],
+      files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+    };
+    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.badData());
+  });
+
+  test('Test applyFilters function with no files', async () => {
+    const payload = {
+      filters: ['negative'],
+    };
+    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.badData());
+  });
+
+  test('Test applyFilters function with save process error', async () => {
+    const payload = {
+      filters: ['negative'],
+      files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+    };
+    processRepository.save = jest.fn().mockResolvedValue(null);
+    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.notFound());
+  });
+
+  test('Test getFilters function with process not found', async () => {
+    const processId = '1234';
+    processRepository.findId = jest.fn().mockResolvedValue(null);
+    await expect(processService.getFilters(processId)).rejects.toThrow(Boom.notFound());
   });
 });
