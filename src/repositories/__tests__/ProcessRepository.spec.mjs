@@ -27,7 +27,6 @@ describe('ProcessRepository', () => {
       _id: expect.anything(),
       filters: process.filters,
       images: [],
-      // ajusta esto para reflejar lo que tu función real haría en las condiciones de la prueba
     };
 
     jest.spyOn(ProcessModel.prototype, 'save').mockResolvedValue(savedProcess);

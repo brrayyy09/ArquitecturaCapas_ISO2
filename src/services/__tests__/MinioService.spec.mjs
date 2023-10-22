@@ -32,17 +32,7 @@ describe('MinioService test', () => {
 
     // Mock the S3Client and PutObjectCommand to avoid actual API calls
     minioService.conn.send = jest.fn().mockResolvedValue();
-
-    // Ensure that the minioService.saveImage method is called
     await minioService.saveImage(image);
-
-    // Verify that S3Client's send method was called with the expected arguments
-    // expect(minioService.conn.send).toHaveBeenCalledWith({
-    //   Bucket: 'images',
-    //   Key: expect.stringMatching(/[a-f0-9-]+\.png/),
-    // Verifica el formato del nombre del archivo
-    //   Body: expect.any(Buffer),
-    // });
   });
 
   test('Test saveImage function with missing image properties', async () => {

@@ -3,5 +3,6 @@ export const BLUR_FILTER = 'blur';
 export const NEGATIVE_FILTER = 'negative';
 
 export const TYPE_OF_FILTERS = [GREYSCALE_FILTER, BLUR_FILTER, NEGATIVE_FILTER];
+export const STATUS_TYPES = ['in-progress', 'Ready', 'Error'];
 
 export const BUCKET_NAME = 'images';

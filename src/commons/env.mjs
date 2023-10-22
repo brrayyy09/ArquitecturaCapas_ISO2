@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import dotenv from 'dotenv';// libreria para cargar variables de entorno en un archivo
 
 dotenv.config();

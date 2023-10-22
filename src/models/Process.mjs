@@ -1,7 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { TYPE_OF_FILTERS } from '../commons/constans.mjs';
-
-const STATUS_TYPES = ['in-progress', 'Ready', 'Error'];
+import { TYPE_OF_FILTERS, STATUS_TYPES } from '../commons/constans.mjs';
 
 const filterSchema = new Schema(
   {

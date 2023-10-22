@@ -6,7 +6,7 @@ class ProcessRepository {
   async save(process) {
     const newProcess = new ProcessModel({
       filters: process.filters,
-      images: process.images, // Si necesitas agregar imágenes
+      images: process.images,
     });
 
     await newProcess.save();

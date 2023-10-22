@@ -5,6 +5,7 @@ import Boom from '@hapi/boom';
 import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
+import { STATUS_TYPES } from '../../commons/constans.mjs';
 
 describe('ProcessService test', () => {
   const processRepository = new ProcessRepository();
@@ -18,29 +19,32 @@ describe('ProcessService test', () => {
     };
 
     const expectedProcess = {
-      id: '1234',
+      id: '4567',
       filters: payload.filters,
       files: payload.files,
     };
 
     processRepository.save = jest.fn().mockResolvedValue(expectedProcess);
 
-    // Mock the minioService.saveImage method as well, similar to your previous test
     minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
 
-    const result = await processService.applyFilters(payload);
+    // Mockear la función getRandomStatus para que devuelva 'in-progress'
+    const getRandomStatusMock = jest.fn(() => 'in-progress');
+
+    const result = await processService.applyFilters(payload, STATUS_TYPES, getRandomStatusMock);
     expect(processRepository.save).toHaveBeenCalledWith({
       filters: payload.filters,
       images: [
         {
-          filters: payload.filters.map((filter) => ({ name: filter, status: 'in-progress' })),
+          filters: payload.filters.map((filter) => ({
+            name: filter,
+            status: 'in-progress',
+          })),
           imageUrl: 'image1.png',
         },
       ],
     });
     expect(minioService.saveImage).toHaveBeenCalledWith(payload.files[0]);
-
-    // Now you can assert the result as needed
     expect(result).toEqual(expectedProcess);
   });
 
@@ -108,23 +112,22 @@ describe('ProcessService test', () => {
   });
 
   test('Test getFilters function with process not found', async () => {
-    const processId = '1234';
+    const processId = '4567';
     processRepository.findId = jest.fn().mockResolvedValue(null);
     await expect(processService.getProcessById(processId)).rejects.toThrow(Boom.notFound());
   });
 
   test('Test getProcessById with valid id', async () => {
     // Mock the processRepository.findById method to return a process with the given id
-    const expectedProcess = { id: '1234', name: 'Test Process' };
+    const expectedProcess = { id: '4567', name: 'Test Process' };
     processRepository.findById = jest.fn().mockResolvedValue(expectedProcess);
 
     // Call the getProcessById method with the id
-    const result = await processService.getProcessById('1234');
+    const result = await processService.getProcessById('4567');
 
     // Verify that the processRepository.findById method was called with the correct argument
-    expect(processRepository.findById).toHaveBeenCalledWith('1234');
+    expect(processRepository.findById).toHaveBeenCalledWith('4567');
 
-    // Now you can assert the result as needed
     expect(result).toEqual(expectedProcess);
   });
 
@@ -141,6 +144,6 @@ describe('ProcessService test', () => {
     processRepository.findById = jest.fn().mockRejectedValue(new Error('Internal Server Error'));
 
     // Expecting the function to throw an internal server error
-    await expect(processService.getProcessById('1234')).rejects.toThrow(Boom.internal());
+    await expect(processService.getProcessById('4567')).rejects.toThrow(Boom.internal());
   });
 });
