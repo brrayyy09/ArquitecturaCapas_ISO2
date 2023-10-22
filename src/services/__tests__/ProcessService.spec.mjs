@@ -5,7 +5,6 @@ import Boom from '@hapi/boom';
 import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
-import { STATUS_TYPES } from '../../commons/constans.mjs';
 
 describe('ProcessService test', () => {
   const processRepository = new ProcessRepository();
@@ -28,17 +27,14 @@ describe('ProcessService test', () => {
 
     minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
 
-    // Mockear la función getRandomStatus para que devuelva 'in-progress'
-    const getRandomStatusMock = jest.fn(() => 'in-progress');
-
-    const result = await processService.applyFilters(payload, STATUS_TYPES, getRandomStatusMock);
+    const result = await processService.applyFilters(payload);
     expect(processRepository.save).toHaveBeenCalledWith({
       filters: payload.filters,
       images: [
         {
           filters: payload.filters.map((filter) => ({
             name: filter,
-            status: 'in-progress',
+            status: expect.any(String),
           })),
           imageUrl: 'image1.png',
         },
