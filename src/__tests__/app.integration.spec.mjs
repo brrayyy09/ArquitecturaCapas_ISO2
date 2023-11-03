@@ -21,15 +21,15 @@ describe('Test app Express server', () => {
   test('GET / should return "ok"', async () => {
     const response = await supertest(app).get('/');
     expect(response.status).toBe(200);
-    expect(response.text).toBe('ok no ');
+    expect(response.text).toBe('ok');
   });
 
   test('POST /images should return 200 status', async () => {
     const response = await supertest(app).post('/images')
       .set('Content-Type', 'multipart/form-data')
-      .field('filters[]', 'grayscale')
+      .field('filters[]', 'greyscale')
       .field('filters[]', 'blur')
-      .attach('images[]', './assets/imagen1.png');
+      .attach('files[]', './assets/imagen1.png');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('filters');

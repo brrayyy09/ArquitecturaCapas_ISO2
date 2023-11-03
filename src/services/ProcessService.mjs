@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import Boom from '@hapi/boom';
+import sharp from 'sharp';
 import {
   BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER, STATUS_TYPES,
 } from '../commons/constans.mjs';
@@ -43,7 +44,24 @@ class ProcessService {
     const imagesPromises = files.map(async (file) => {
       // Lógica para guardar la imagen y aplicar filtros
 
-      const imageUrl = await this.minioService.saveImage(file);
+      let imageBuffer = sharp(file.buffer);
+
+      filters.forEach((filter) => {
+        if (filter === BLUR_FILTER) {
+          imageBuffer = imageBuffer.blur(10);
+        } else if (filter === GREYSCALE_FILTER) {
+          imageBuffer = imageBuffer.greyscale();
+        } else if (filter === NEGATIVE_FILTER) {
+          imageBuffer = imageBuffer.negate({ alpha: false });
+        } else {
+          // Manejar casos de filtros desconocidos o no válidos
+          throw Boom.badRequest(`Filtro no válido: ${filter}`);
+        }
+      });
+
+      const imageWithFilter = await imageBuffer.toBuffer();
+      const imageUrl = await this.minioService
+        .saveImage({ buffer: imageWithFilter, originalname: file.originalname });
 
       return {
         imageUrl, // la URL de la imagen
