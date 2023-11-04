@@ -1,6 +1,7 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { v4 } from 'uuid';
 import Boom from '@hapi/boom';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST } from '../commons/env.mjs';
 import { BUCKET_NAME } from '../commons/constans.mjs';
 
@@ -47,12 +48,30 @@ class MinioService {
 
       const fileName = `${v4()}.${extension}`;
 
-      await this.conn.send(new PutObjectCommand({
+      const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: fileName,
         Body: buffer,
-      }));
-      return fileName;
+      });
+
+      await this.conn.send(command);
+
+      // const getObjectParams = {
+      //   Bucket: BUCKET_NAME,
+      //   Key: fileName,
+      // };
+
+      // const getObjectCommand = new GetObjectCommand(getObjectParams);
+
+      const url = await getSignedUrl(
+        this.conn,
+        command,
+        {
+          expiresIn: 60 * 60 * 24, // 1 día en segundos
+        },
+      );
+
+      return url;
     } catch (error) {
       throw Boom.isBoom(error) ? error : Boom.internal('Error saving image', error);
     }
