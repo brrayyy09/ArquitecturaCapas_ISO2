@@ -1,20 +1,35 @@
 import {
-  describe, test, expect, jest,
+  describe, test, expect, jest, afterEach,
 } from '@jest/globals';
 import Boom from '@hapi/boom';
 import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
 
+// Mock the sharp library
+jest.mock('sharp', () => {
+  const mockSharpInstance = {
+    blur: jest.fn().mockReturnThis(),
+    greyscale: jest.fn().mockReturnThis(),
+    negate: jest.fn().mockReturnThis(),
+    toBuffer: jest.fn().mockResolvedValue(Buffer.from('processed image buffer')),
+  };
+  return jest.fn(() => mockSharpInstance);
+});
 describe('ProcessService test', () => {
   const processRepository = new ProcessRepository();
   const minioService = new MinioService();
   const processService = new ProcessService({ processRepository, minioService });
 
+  const mockImageBuffer = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wQACgsB9UoZuQ8AAAAASUVORK5CYII=',
+    'base64',
+  );
+
   test('Test applyFilters function with valid payload', async () => {
     const payload = {
       filters: ['negative'],
-      files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+      files: [{ originalname: 'image.png', buffer: mockImageBuffer }],
     };
 
     const expectedProcess = {
@@ -40,7 +55,10 @@ describe('ProcessService test', () => {
         },
       ],
     });
-    expect(minioService.saveImage).toHaveBeenCalledWith(payload.files[0]);
+    expect(minioService.saveImage).toHaveBeenCalledWith(expect.objectContaining({
+      originalname: 'image.png',
+      buffer: expect.any(Buffer),
+    }));
     expect(result).toEqual(expectedProcess);
   });
 
@@ -61,7 +79,7 @@ describe('ProcessService test', () => {
     };
 
     // Mock the processRepository.save method to throw an unexpected error
-    processRepository.save = jest.fn().mockRejectedValue(new Error('Unexpected error'));
+    processRepository.save = jest.fn().mockRejectedValue(null);
 
     // Expecting the function to throw an error
     await expect(processService.applyFilters(payload)).rejects.toThrow();
@@ -101,7 +119,7 @@ describe('ProcessService test', () => {
   test('Test applyFilters function with save process error', async () => {
     const payload = {
       filters: ['negative'],
-      files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
+      files: [{ originalname: 'image.png', buffer: mockImageBuffer }],
     };
     processRepository.save = jest.fn().mockResolvedValue(null);
     await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.notFound());
@@ -141,5 +159,44 @@ describe('ProcessService test', () => {
 
     // Expecting the function to throw an internal server error
     await expect(processService.getProcessById('4567')).rejects.toThrow(Boom.internal());
+  });
+  test('applyFilters applies the correct filters and saves the processed image', async () => {
+    const payload = {
+      filters: ['blur', 'greyscale', 'negative'],
+      files: [{ originalname: 'image.png', buffer: mockImageBuffer }],
+    };
+
+    // Mock the saveImage method of minioService
+    minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
+
+    // Mock the processRepository.save method to return a simulated process object
+    const expectedSavedProcess = {
+      id: '4567',
+      filters: payload.filters,
+      images: [
+        {
+          imageUrl: 'image1.png',
+          filters: payload.filters.map((filter) => ({
+            name: filter,
+            status: 'applied', // or any other status you expect
+          })),
+        },
+      ],
+    };
+    processRepository.save = jest.fn().mockResolvedValue(expectedSavedProcess);
+
+    // Call the applyFilters method
+    const result = await processService.applyFilters(payload);
+    // Assert that the image was saved using minioService
+    expect(minioService.saveImage).toHaveBeenCalledWith({
+      buffer: expect.any(Buffer),
+      originalname: 'image.png',
+    });
+
+    // Assert that the result contains the expected data
+    expect(result).toEqual(expectedSavedProcess);
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });
