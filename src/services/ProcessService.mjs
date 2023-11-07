@@ -4,6 +4,7 @@ import sharp from 'sharp';
 import {
   BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER, STATUS_TYPES,
 } from '../commons/constans.mjs';
+import eventBus from '../commons/eventBus.mjs';
 
 class ProcessService {
   processRepository = null;
@@ -62,6 +63,7 @@ class ProcessService {
       const imageWithFilter = await imageBuffer.toBuffer();
       const imageUrl = await this.minioService
         .saveImage({ buffer: imageWithFilter, originalname: file.originalname });
+      eventBus.emit('imageProcessed', { imageUrl, filters });
 
       return {
         imageUrl, // la URL de la imagen
