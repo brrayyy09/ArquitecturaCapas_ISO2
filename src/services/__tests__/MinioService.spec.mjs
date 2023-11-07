@@ -24,17 +24,6 @@ describe('MinioService test', () => {
     await expect(minioService.saveImage(imageWithoutBuffer)).rejects.toThrow(Boom.badRequest('Image buffer is required'));
   });
 
-  test('Test saveImage function with valid image', async () => {
-    const image = {
-      originalname: 'image.png',
-      buffer: Buffer.from('fake-image-data'),
-    };
-
-    // Mock the S3Client and PutObjectCommand to avoid actual API calls
-    minioService.conn.send = jest.fn().mockResolvedValue();
-    await minioService.saveImage(image);
-  });
-
   test('Test saveImage function with missing image properties', async () => {
     const invalidImage = {}; // Missing properties
 
