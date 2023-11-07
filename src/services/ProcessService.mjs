@@ -1,6 +1,5 @@
 import Joi from 'joi';
 import Boom from '@hapi/boom';
-import sharp from 'sharp';
 import {
   BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER, STATUS_TYPES,
 } from '../commons/constans.mjs';
@@ -11,6 +10,8 @@ class ProcessService {
 
   minioService = null;
 
+  imageFilterService = null; // Declara el nuevo servicio
+
   payloadValidation = Joi.object({
     filters: Joi.array().items(Joi.string().valid(
       BLUR_FILTER,
@@ -20,17 +21,16 @@ class ProcessService {
     files: Joi.array().required(),
   }).required();
 
-  constructor({ processRepository, minioService }) {
+  constructor({ processRepository, minioService, imageFilterService }) {
     this.processRepository = processRepository;
     this.minioService = minioService;
+    this.imageFilterService = imageFilterService; // Inyecta el nuevo servicio
   }
 
   async applyFilters(payload) {
     try {
-      // 1. Validar el body de los filters que se enviaron
       await this.payloadValidation.validateAsync(payload);
     } catch (error) {
-      // 2. Manejar errores de validación
       throw Boom.badData(error.message, { error });
     }
 
@@ -41,58 +41,31 @@ class ProcessService {
 
     const { files, filters } = payload;
 
-    // Procesa cada archivo y aplica los filtros
     const imagesPromises = files.map(async (file) => {
-      // Lógica para guardar la imagen y aplicar filtros
-
-      let imageBuffer = sharp(file.buffer);
-
-      filters.forEach((filter) => {
-        if (filter === BLUR_FILTER) {
-          imageBuffer = imageBuffer.blur(10);
-        } else if (filter === GREYSCALE_FILTER) {
-          imageBuffer = imageBuffer.greyscale();
-        } else if (filter === NEGATIVE_FILTER) {
-          imageBuffer = imageBuffer.negate({ alpha: false });
-        } else {
-          // Manejar casos de filtros desconocidos o no válidos
-          throw Boom.badRequest(`Filtro no válido: ${filter}`);
-        }
+      // Delegate the filter application to the new service
+      const imageWithFilter = await this.imageFilterService.applyFilters(file.buffer, filters);
+      const imageUrl = await this.minioService.saveImage({
+        buffer:
+        imageWithFilter,
+        originalname: file.originalname,
       });
-
-      const imageWithFilter = await imageBuffer.toBuffer();
-      const imageUrl = await this.minioService
-        .saveImage({ buffer: imageWithFilter, originalname: file.originalname });
       eventBus.emit('imageProcessed', { imageUrl, filters });
 
       return {
-        imageUrl, // la URL de la imagen
+        imageUrl,
         filters: filters.map((filter) => ({
           name: filter,
           status: getRandomStatus(STATUS_TYPES),
         })),
       };
     });
-    const images = await Promise.all(imagesPromises);
 
-    // Aquí, 'process' debería ser el objeto que se guarda en la base de datos
+    const images = await Promise.all(imagesPromises);
     const process = await this.processRepository.save({ filters, images });
 
     if (!process) throw Boom.notFound('Not Found');
 
-    return process; // Esto devuelve el objeto 'process' con las 'images' incluidas
-  }
-
-  async getProcessById(id) {
-    try {
-      const process = await this.processRepository.findById(id);
-      if (!process) {
-        throw Boom.notFound('Not Found');
-      }
-      return process;
-    } catch (error) {
-      throw Boom.internal(error.message, { error });
-    }
+    return process;
   }
 }
 
