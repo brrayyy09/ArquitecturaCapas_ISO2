@@ -16,5 +16,8 @@ ENV MINIO_SECRET_KEY miniopassword
 EXPOSE 5001  
 
 RUN npm install --production
+RUN npm install pm2 -g
+ENV PM2_PUBLIC_KEY ifn2n4r0fmrbwoc
+ENV PM2_SECRET_KEY 0u0x140rlio4mui
 
-ENTRYPOINT ["npm", "start"]
+CMD ["pm2-runtime", "index.mjs","--instance", "2"]
