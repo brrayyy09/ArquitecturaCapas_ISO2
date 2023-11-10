@@ -10,7 +10,7 @@ class ProcessService {
 
   minioService = null;
 
-  imageFilterService = null; // Declara el nuevo servicio
+  imageFilterService = null;
 
   payloadValidation = Joi.object({
     filters: Joi.array().items(Joi.string().valid(
@@ -24,7 +24,7 @@ class ProcessService {
   constructor({ processRepository, minioService, imageFilterService }) {
     this.processRepository = processRepository;
     this.minioService = minioService;
-    this.imageFilterService = imageFilterService; // Inyecta el nuevo servicio
+    this.imageFilterService = imageFilterService;
   }
 
   async applyFilters(payload) {
@@ -42,7 +42,6 @@ class ProcessService {
     const { files, filters } = payload;
 
     const imagesPromises = files.map(async (file) => {
-      // Delegate the filter application to the new service
       const imageWithFilter = await this.imageFilterService.applyFilters(file.buffer, filters);
       const imageUrl = await this.minioService.saveImage({
         buffer:
@@ -66,6 +65,18 @@ class ProcessService {
     if (!process) throw Boom.notFound('Not Found');
 
     return process;
+  }
+
+  async getProcessById(id) {
+    try {
+      const process = await this.processRepository.findById(id);
+      if (!process) {
+        throw Boom.notFound('Not Found');
+      }
+      return process;
+    } catch (error) {
+      throw Boom.internal(error.message, { error });
+    }
   }
 }
 
