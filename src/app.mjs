@@ -1,6 +1,7 @@
 import Express from 'express';
 import bodyParser from 'body-parser';
 import Boom from '@hapi/boom';
+import process from 'process';
 import FiltersRouter from './handlers/filters/index.mjs';
 import buildContainer from './container/buildContainer.mjs';
 
@@ -9,7 +10,10 @@ app.use(buildContainer);
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('ok');
+  res.json({
+    status: 'ok',
+    pid: process.pid,
+  });
 });
 
 app.use('/images', FiltersRouter);
