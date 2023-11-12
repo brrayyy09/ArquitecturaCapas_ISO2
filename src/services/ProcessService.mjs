@@ -35,7 +35,9 @@ class ProcessService {
       const imageWithFilter = await this.imageFilterService.applyFilters(files.buffer, filters);
       
     } catch (error) {
+
       throw Boom.badData(error.message, { error });
+      
     }
 
     function getRandomStatus() {
