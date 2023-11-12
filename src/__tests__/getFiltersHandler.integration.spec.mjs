@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import HttpStatusCodes from 'http-status-codes';
-import Boom from '@hapi/boom';
+
 import {
   describe,
   expect, beforeEach, it, jest,

@@ -10,7 +10,9 @@ class ProcessService {
 
   minioService = null;
 
-  imageFilterService = this.imageFilterService;
+  imageFilterService = null;
+
+  
 
   payloadValidation = Joi.object({
     filters: Joi.array().items(Joi.string().valid(
@@ -32,7 +34,7 @@ class ProcessService {
     try {
       
       await this.payloadValidation.validateAsync(payload);
-      const imageWithFilter = await this.imageFilterService.applyFilters(files.buffer, filters);
+      
       
     } catch (error) {
 
@@ -46,9 +48,9 @@ class ProcessService {
       
     }
     
-
+    const imageWithFilter = await this.imageFilterService.applyFilters(files.buffer, filters);
     const { files, filters } = payload;
-
+    
     const imagesPromises = files.map(async (file) => {
       
       const imageUrl = await this.minioService.saveImage({

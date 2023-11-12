@@ -36,32 +36,6 @@ class MinioService {
         throw Boom.badRequest('Image buffer is required');
       }
 
-      const { originalname, buffer } = image;
-
-      const originalNameParts = originalname.split('.');
-
-      if (originalNameParts.length !== 2) {
-        throw Boom.badRequest('Invalid image name');
-      }
-
-      const extension = originalNameParts[1];
-
-      const fileName = `${v4()}.${extension}`;
-
-      await this.conn.send(new PutObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: fileName,
-        Body: buffer,
-      }));
-
-      const getCommand = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: fileName,
-      });
-
-      const url = await getSignedUrl(this.conn, getCommand, { expiresIn: 60 * 60 * 24 });
-
-      return url;
     } catch (error) {
       throw Boom.isBoom(error) ? error : Boom.internal('Error saving image', error);
     }
