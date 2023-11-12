@@ -10,7 +10,7 @@ class ProcessService {
 
   minioService = null;
 
-  imageFilterService = null;
+  imageFilterService = this.imageFilterService;
 
   payloadValidation = Joi.object({
     filters: Joi.array().items(Joi.string().valid(
@@ -28,8 +28,12 @@ class ProcessService {
   }
 
   async applyFilters(payload) {
+    
     try {
+      
       await this.payloadValidation.validateAsync(payload);
+      const imageWithFilter = await this.imageFilterService.applyFilters(files.buffer, filters);
+      
     } catch (error) {
       throw Boom.badData(error.message, { error });
     }
@@ -37,12 +41,14 @@ class ProcessService {
     function getRandomStatus() {
       const randomIndex = Math.floor(Math.random() * STATUS_TYPES.length);
       return STATUS_TYPES[randomIndex];
+      
     }
+    
 
     const { files, filters } = payload;
 
     const imagesPromises = files.map(async (file) => {
-      const imageWithFilter = await this.imageFilterService.applyFilters(file.buffer, filters);
+      
       const imageUrl = await this.minioService.saveImage({
         buffer:
         imageWithFilter,
@@ -81,3 +87,4 @@ class ProcessService {
 }
 
 export default ProcessService;
+
