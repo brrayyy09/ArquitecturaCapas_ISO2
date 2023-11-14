@@ -9,6 +9,7 @@ export default {
   collectCoverageFrom: [
     '**/app.mjs',
     '**/handlers/**/*.mjs',
+    '**/services/**/*.mjs',
   ],
   verbose: true,
   collectCoverage: true,

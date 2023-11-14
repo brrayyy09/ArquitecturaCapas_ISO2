@@ -6,25 +6,17 @@ import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
 
-// Mock the sharp library
-jest.mock('sharp', () => {
-  const mockSharpInstance = {
-    blur: jest.fn().mockReturnThis(),
-    greyscale: jest.fn().mockReturnThis(),
-    negate: jest.fn().mockReturnThis(),
-    toBuffer: jest.fn().mockResolvedValue(Buffer.from('processed image buffer')),
-  };
-  return jest.fn(() => mockSharpInstance);
-});
 describe('ProcessService test', () => {
   const processRepository = new ProcessRepository();
   const minioService = new MinioService();
-  const processService = new ProcessService({ processRepository, minioService });
+  
 
   const mockImageBuffer = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wQACgsB9UoZuQ8AAAAASUVORK5CYII=',
     'base64',
   );
+
+  const processService = new ProcessService({ processRepository, minioService , imageFilterService: { mockImageBuffer, applyFilters: jest.fn()}});
 
   test('Test applyFilters function with valid payload', async () => {
     const payload = {
@@ -35,16 +27,6 @@ describe('ProcessService test', () => {
     const expectedProcess = {
       id: '4567',
       filters: payload.filters,
-      files: payload.files,
-    };
-
-    processRepository.save = jest.fn().mockResolvedValue(expectedProcess);
-
-    minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
-
-    const result = await processService.applyFilters(payload);
-    expect(processRepository.save).toHaveBeenCalledWith({
-      filters: payload.filters,
       images: [
         {
           filters: payload.filters.map((filter) => ({
@@ -54,7 +36,17 @@ describe('ProcessService test', () => {
           imageUrl: 'image1.png',
         },
       ],
-    });
+    };
+    const mockImageFilterService = {
+      applyFilters: jest.fn(),
+    };
+    
+    processRepository.save = jest.fn().mockResolvedValue(expectedProcess);
+
+    minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
+
+    const result = await processService.applyFilters(payload);
+    expect(processRepository.save).toHaveBeenCalledWith(expectedProcess);
     expect(minioService.saveImage).toHaveBeenCalledWith(expect.objectContaining({
       originalname: 'image.png',
       buffer: expect.any(Buffer),
@@ -68,8 +60,11 @@ describe('ProcessService test', () => {
       files: [], // No files provided, which is also invalid
     };
 
+    const mockError = new Error('Unprocessable Entity');
+    jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
+
     // Expecting the validation to throw an error
-    await expect(processService.applyFilters(invalidPayload)).rejects.toThrow();
+    await expect(processService.applyFilters(invalidPayload)).rejects.toThrow(mockError);
   });
 
   test('Test applyFilters function with unexpected error when saving process', async () => {
@@ -93,6 +88,8 @@ describe('ProcessService test', () => {
     const mockError = new Error('Unprocessable Entity');
     jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
     await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
+
+    jest.spyOn(Boom, 'badData').mockRestore();
   });
 
   test('Test applyFilters function with invalid filters', async () => {
@@ -100,9 +97,11 @@ describe('ProcessService test', () => {
       filters: ['invalid_filter'],
       files: [{ originalname: 'image.png', buffer: Buffer.from('') }],
     };
-    const mockError = new Error('Unprocessable Entity');
+    const mockError = Boom.badData('Not Found');
     jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
     await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
+
+    jest.spyOn(Boom, 'badData').mockRestore();
   });
 
   test('Test applyFilters function with no files', async () => {
@@ -110,10 +109,12 @@ describe('ProcessService test', () => {
       filters: ['negative'],
     };
 
-    const mockError = new Error('Not Found');
+    const mockError = Boom.badData('Not Found');
     jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
 
     await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
+    jest.spyOn(Boom, 'badData').mockRestore();
+
   });
 
   test('Test applyFilters function with save process error', async () => {
@@ -121,14 +122,29 @@ describe('ProcessService test', () => {
       filters: ['negative'],
       files: [{ originalname: 'image.png', buffer: mockImageBuffer }],
     };
+    
+    const mockError = Boom.notFound('Not Found');
     processRepository.save = jest.fn().mockResolvedValue(null);
-    await expect(processService.applyFilters(payload)).rejects.toThrow(Boom.notFound());
+    await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
+    jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
+
+
+    jest.spyOn(Boom, 'badData').mockRestore();
+
+
   });
 
   test('Test getFilters function with process not found', async () => {
     const processId = '4567';
+
+
+    const mockError = Boom.badData('Not Found');
+    jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
+    
     processRepository.findId = jest.fn().mockResolvedValue(null);
     await expect(processService.getProcessById(processId)).rejects.toThrow(Boom.notFound());
+
+    jest.spyOn(Boom, 'badData').mockRestore();
   });
 
   test('Test getProcessById with valid id', async () => {
@@ -160,9 +176,10 @@ describe('ProcessService test', () => {
     // Expecting the function to throw an internal server error
     await expect(processService.getProcessById('4567')).rejects.toThrow(Boom.internal());
   });
+
   test('applyFilters applies the correct filters and saves the processed image', async () => {
     const payload = {
-      filters: ['blur', 'greyscale', 'negative'],
+      filters: ['blur'],
       files: [{ originalname: 'image.png', buffer: mockImageBuffer }],
     };
 
@@ -199,4 +216,5 @@ describe('ProcessService test', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
 });

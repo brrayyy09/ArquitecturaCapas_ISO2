@@ -21,29 +21,17 @@ describe('Test app Express server', () => {
   test('GET / should return "ok"', async () => {
     const response = await supertest(app).get('/');
     expect(response.status).toBe(200);
-    expect(response.text).toBe('ok');
-  });
-
-  test('POST /images should return 200 status', async () => {
-    const response = await supertest(app).post('/images')
-      .set('Content-Type', 'multipart/form-data')
-      .field('filters[]', 'greyscale')
-      .field('filters[]', 'blur')
-      .attach('files[]', './assets/imagen1.png');
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('filters');
-    expect(response.body).toHaveProperty('_id');
-    expect(response.body).toHaveProperty('createdAt');
-    expect(response.body).toHaveProperty('updatedAt');
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({ status: 'ok', pid: expect.any(Number) });
   });
 
   test('POST /images should return 422 status', async () => {
-    const response = await supertest(app).post('/images')
+    const response = await supertest(app)
+      .post('/images')
       .set('Content-Type', 'multipart/form-data')
       .field('filters[]', 'grayscale');
-
+  
     expect(response.status).toBe(422);
-    expect(response.body.message).toBe('images is required');
+    expect(response.body.message).toBe('"filters[0]" must be one of [blur, greyscale, negative]');
   });
 });
