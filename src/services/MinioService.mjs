@@ -35,7 +35,6 @@ class MinioService {
       if (!image.buffer) {
         throw Boom.badRequest('Image buffer is required');
       }
-
     } catch (error) {
       throw Boom.isBoom(error) ? error : Boom.internal('Error saving image', error);
     }

@@ -30,7 +30,6 @@ describe('Test app Express server', () => {
       .post('/images')
       .set('Content-Type', 'multipart/form-data')
       .field('filters[]', 'grayscale');
-  
     expect(response.status).toBe(422);
     expect(response.body.message).toBe('"filters[0]" must be one of [blur, greyscale, negative]');
   });

@@ -9,14 +9,17 @@ import ProcessService from '../ProcessService.mjs';
 describe('ProcessService test', () => {
   const processRepository = new ProcessRepository();
   const minioService = new MinioService();
-  
 
   const mockImageBuffer = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wQACgsB9UoZuQ8AAAAASUVORK5CYII=',
     'base64',
   );
 
-  const processService = new ProcessService({ processRepository, minioService , imageFilterService: { mockImageBuffer, applyFilters: jest.fn()}});
+  const processService = new ProcessService({
+    processRepository,
+    minioService,
+    imageFilterService: { mockImageBuffer, applyFilters: jest.fn() },
+  });
 
   test('Test applyFilters function with valid payload', async () => {
     const payload = {
@@ -37,10 +40,7 @@ describe('ProcessService test', () => {
         },
       ],
     };
-    const mockImageFilterService = {
-      applyFilters: jest.fn(),
-    };
-    
+
     processRepository.save = jest.fn().mockResolvedValue(expectedProcess);
 
     minioService.saveImage = jest.fn().mockResolvedValue('image1.png');
@@ -114,7 +114,6 @@ describe('ProcessService test', () => {
 
     await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
     jest.spyOn(Boom, 'badData').mockRestore();
-
   });
 
   test('Test applyFilters function with save process error', async () => {
@@ -122,25 +121,21 @@ describe('ProcessService test', () => {
       filters: ['negative'],
       files: [{ originalname: 'image.png', buffer: mockImageBuffer }],
     };
-    
+
     const mockError = Boom.notFound('Not Found');
     processRepository.save = jest.fn().mockResolvedValue(null);
     await expect(processService.applyFilters(payload)).rejects.toThrow(mockError);
     jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
 
-
     jest.spyOn(Boom, 'badData').mockRestore();
-
-
   });
 
   test('Test getFilters function with process not found', async () => {
     const processId = '4567';
 
-
     const mockError = Boom.badData('Not Found');
     jest.spyOn(Boom, 'badData').mockReturnValue(mockError);
-    
+
     processRepository.findId = jest.fn().mockResolvedValue(null);
     await expect(processService.getProcessById(processId)).rejects.toThrow(Boom.notFound());
 
@@ -216,5 +211,4 @@ describe('ProcessService test', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-
 });

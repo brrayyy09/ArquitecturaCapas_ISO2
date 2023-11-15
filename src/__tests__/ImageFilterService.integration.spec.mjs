@@ -1,9 +1,9 @@
-import ImageFilterService from '../services/ImageFilterService.mjs';
-import{
-  jest, describe, it, expect, 
+import {
+  jest, describe, it, expect,
 } from '@jest/globals';
+import ImageFilterService from '../services/ImageFilterService.mjs';
 
-import { BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER } from '../commons/constans.mjs';
+import { BLUR_FILTER } from '../commons/constans.mjs';
 
 describe('ImageFilterService', () => {
   it('should apply blur filter', async () => {
