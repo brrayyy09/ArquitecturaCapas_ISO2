@@ -1,7 +1,7 @@
-import MinioService from '../services/MinioService.mjs';
 import {
-    jest, describe, it, expect,
+  describe, it, expect,
 } from '@jest/globals';
+import MinioService from '../services/MinioService.mjs';
 
 describe('MinioService', () => {
   const minioService = new MinioService();
@@ -11,13 +11,11 @@ describe('MinioService', () => {
       originalname: 'image.png',
       buffer: Buffer.from('image data'),
     };
-  
+
     const url = await minioService.saveImage(image);
-        
+
     expect(url).toMatch(/^(https?:\/\/)?[a-zA-Z0-9-]+\.[a-zA-Z]+\/[a-zA-Z0-9-]+/);
- 
   });
-  
 
   it('should throw an error if the image is not provided', async () => {
     await expect(minioService.saveImage(null)).rejects.toThrow('Image is required');
@@ -30,5 +28,4 @@ describe('MinioService', () => {
   it('should throw an error if the image buffer is not provided', async () => {
     await expect(minioService.saveImage({ originalname: 'image.png' })).rejects.toThrow('Image buffer is required');
   });
-
 });

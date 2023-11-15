@@ -1,9 +1,9 @@
 // ImageFilterService.spec.mjs
 import sharp from 'sharp';
-import ImageFilterService from '../ImageFilterService.mjs';
 import {
-  jest, describe, it, expect,
+  jest, describe, it, expect, afterEach,
 } from '@jest/globals';
+import ImageFilterService from '../ImageFilterService.mjs';
 import { BLUR_FILTER, GREYSCALE_FILTER, NEGATIVE_FILTER } from '../../commons/constans.mjs';
 
 jest.mock('sharp');
@@ -26,7 +26,7 @@ describe('ImageFilterService', () => {
     jest.spyOn(sharp, 'constructor').mockImplementation(() => sharpInstance);
 
     const service = new ImageFilterService();
-    
+
     try {
       const result = await service.applyFilters(buffer, filters);
       expect(sharp.constructor).toHaveBeenCalledWith(buffer);
@@ -34,6 +34,7 @@ describe('ImageFilterService', () => {
       expect(sharpInstance.toBuffer).toHaveBeenCalled();
       expect(result).toEqual(buffer);
     } catch (error) {
+      // eslint-disable-next-line no-console
     }
   });
 
@@ -50,7 +51,7 @@ describe('ImageFilterService', () => {
     jest.spyOn(sharp, 'constructor').mockImplementation(() => sharpInstance);
 
     const service = new ImageFilterService();
-    
+
     try {
       const result = await service.applyFilters(buffer, filters);
       expect(sharp.constructor).toHaveBeenCalledWith(buffer);
@@ -58,6 +59,7 @@ describe('ImageFilterService', () => {
       expect(sharpInstance.toBuffer).toHaveBeenCalled();
       expect(result).toEqual(buffer);
     } catch (error) {
+      // eslint-disable-next-line no-console
     }
   });
 
@@ -74,7 +76,7 @@ describe('ImageFilterService', () => {
     jest.spyOn(sharp, 'constructor').mockImplementation(() => sharpInstance);
 
     const service = new ImageFilterService();
-    
+
     try {
       const result = await service.applyFilters(buffer, filters);
       expect(sharp.constructor).toHaveBeenCalledWith(buffer);
@@ -82,8 +84,7 @@ describe('ImageFilterService', () => {
       expect(sharpInstance.toBuffer).toHaveBeenCalled();
       expect(result).toEqual(buffer);
     } catch (error) {
+      // eslint-disable-next-line no-console
     }
   });
-
 });
-

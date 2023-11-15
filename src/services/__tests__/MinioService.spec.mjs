@@ -47,8 +47,4 @@ describe('MinioService test', () => {
     minioService.conn.send = jest.fn().mockRejectedValue(new Error('Unexpected error'));
     await expect(minioService.saveImage(image)).rejects.toThrow(Boom.internal('Error saving image: Unexpected error'));
   });
-  
-
 });
-
-

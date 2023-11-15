@@ -53,11 +53,10 @@ describe('Integration tests for getFiltersHandler', () => {
 
   it('should return 404 when the process is not found', async () => {
     const processId = 'not-found';
-    mockProcessService.getProcessById.mockRejectedValue( null);
+    mockProcessService.getProcessById.mockRejectedValue(null);
 
     await request(app)
       .get(`/filters/${processId}`)
       .expect(HttpStatusCodes.NOT_FOUND);
   });
-
 });
