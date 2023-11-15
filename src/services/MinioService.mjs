@@ -1,9 +1,7 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { v4 } from 'uuid';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client } from '@aws-sdk/client-s3';
+
 import Boom from '@hapi/boom';
 import { MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST } from '../commons/env.mjs';
-import { BUCKET_NAME } from '../commons/constans.mjs';
 
 class MinioService {
   conn = null;
@@ -22,6 +20,7 @@ class MinioService {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async saveImage(image) {
     try {
       if (!image) {
