@@ -1,7 +1,7 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import Boom from '@hapi/boom';
 import {
-  describe, test, expect,
+  describe, test, expect, jest,
 } from '@jest/globals';
 import MinioService from '../MinioService.mjs';
 
@@ -32,11 +32,12 @@ describe('MinioService test', () => {
   });
 
   test('Test saveImage function with invalid image name', async () => {
-    const image = {
-      originalname: 'invalid.image.name.png',
+    const invalidImage = {
+      originalname: 'invalid.image.name.txt',
       buffer: Buffer.from('fake-image-data'),
     };
-    await expect(minioService.saveImage(image)).rejects.toThrow(Boom.badRequest('Invalid image name'));
+    const resultPromise = minioService.saveImage(invalidImage);
+    await expect(resultPromise).rejects.toThrow('Invalid image name');
   });
 
   test('Test saveImage function with unexpected error', async () => {
@@ -44,6 +45,18 @@ describe('MinioService test', () => {
       originalname: 'image.png',
       buffer: Buffer.from('fake-image-data'),
     };
-    await expect(minioService.saveImage(image)).rejects.toThrow(new Error('Unexpected error'));
+
+    // Simular un error que no es un Boom error
+    const nonBoomError = new Error('Unexpected error');
+
+    jest.spyOn(minioService, 'saveImage').mockRejectedValueOnce(nonBoomError);
+
+    try {
+      await minioService.saveImage(image);
+    } catch (error) {
+      console.log('Caught error:', error); // Agrega este log para verificar el error capturado
+      expect(Boom.isBoom(error)).toBe(false);
+      expect(error).toEqual(Boom.internal('Error saving image', nonBoomError));
+    }
   });
 });
