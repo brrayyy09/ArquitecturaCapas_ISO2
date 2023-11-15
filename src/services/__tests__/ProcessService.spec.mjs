@@ -6,8 +6,6 @@ import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import MinioService from '../MinioService.mjs';
 import ProcessService from '../ProcessService.mjs';
 
-const STATUS_TYPES = ['in-progress', 'Ready', 'Error'];
-
 describe('ProcessService test', () => {
   const processRepository = new ProcessRepository();
   const minioService = new MinioService();
