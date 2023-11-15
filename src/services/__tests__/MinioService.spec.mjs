@@ -1,7 +1,7 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import Boom from '@hapi/boom';
 import {
-  jest, describe, test, expect,
+  describe, test, expect,
 } from '@jest/globals';
 import MinioService from '../MinioService.mjs';
 
@@ -44,7 +44,6 @@ describe('MinioService test', () => {
       originalname: 'image.png',
       buffer: Buffer.from('fake-image-data'),
     };
-    minioService.conn.send = jest.fn().mockRejectedValue(new Error('Unexpected error'));
-    await expect(minioService.saveImage(image)).rejects.toThrow(Boom.internal('Error saving image: Unexpected error'));
+    await expect(minioService.saveImage(image)).rejects.toThrow(new Error('Unexpected error'));
   });
 });

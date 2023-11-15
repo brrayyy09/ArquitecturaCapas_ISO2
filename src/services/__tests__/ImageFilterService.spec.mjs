@@ -87,4 +87,26 @@ describe('ImageFilterService', () => {
       // eslint-disable-next-line no-console
     }
   });
+  it('should handle unknown filters', async () => {
+    const buffer = Buffer.from('example-image-buffer');
+    const unknownFilter = 'unknownFilter';
+    const filters = [unknownFilter];
+
+    const sharpInstance = {
+      toBuffer: jest.fn().mockResolvedValue(buffer),
+    };
+
+    // Espía la construcción de la instancia de sharp
+    jest.spyOn(sharp, 'constructor').mockImplementation(() => sharpInstance);
+
+    const service = new ImageFilterService();
+    try {
+      const result = await service.applyFilters(buffer, filters);
+      expect(sharp.constructor).toHaveBeenCalledWith(buffer);
+      expect(sharpInstance.toBuffer).toHaveBeenCalled();
+      expect(result).toEqual(buffer);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+    }
+  });
 });

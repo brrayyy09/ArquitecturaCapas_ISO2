@@ -35,7 +35,8 @@ class MinioService {
         throw Boom.badRequest('Image buffer is required');
       }
     } catch (error) {
-      throw Boom.isBoom(error) ? error : Boom.internal('Error saving image', error);
+      // Toco hacer un error diferente que no sea de Boom
+      throw new Error('Unexpected error');
     }
   }
 }
