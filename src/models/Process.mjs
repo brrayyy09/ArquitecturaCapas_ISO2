@@ -38,6 +38,7 @@ const ProcessSchema = new Schema(
   { timestamps: true },
 );
 
+// eslint-disable-next-line func-names
 ProcessSchema.statics.findById = function (id) {
   return this.findOne({ _id: id });
 };
